@@ -7,7 +7,7 @@ import styles from "../styles/Home.module.css";
 
 export default function Home() {
   // Contract Address & ABI
-  const contractAddress = "0x2854b11e86d74982e8921Db725c8501bDa049553";
+  const contractAddress = "0x1d397f395DEAEd4cEB96D0c630A8cA548f35B8CF";
   const contractABI = abi.abi;
 
   // Component state
@@ -86,6 +86,41 @@ export default function Home() {
         console.log("mined ", coffeeTxn.hash);
 
         console.log("coffee purchased!");
+
+        // Clear the form fields.
+        setName("");
+        setMessage("");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const buyLargeCoffee = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum, "any");
+        const signer = provider.getSigner();
+        const buyMeACoffee = new ethers.Contract(
+          contractAddress,
+          contractABI,
+          signer
+        );
+
+        console.log("buying large coffee..");
+        const coffeeTxn = await buyMeACoffee.buyLargeCoffee(
+          name ? name : "anon",
+          message ? message : "Enjoy your coffee!",
+          { value: ethers.utils.parseEther("0.003") }
+        );
+
+        await coffeeTxn.wait();
+
+        console.log("mined ", coffeeTxn.hash);
+
+        console.log("large coffee purchased!");
 
         // Clear the form fields.
         setName("");
@@ -202,6 +237,11 @@ export default function Home() {
                   Send 1 Coffee for 0.001ETH
                 </button>
               </div>
+              <div>
+                <button type="button" onClick={buyLargeCoffee}>
+                  Send 1 Large Coffee for 0.003ETH
+                </button>
+              </div>
             </form>
           </div>
         ) : (
@@ -223,7 +263,7 @@ export default function Home() {
                 margin: "5px",
               }}
             >
-              <p style={{ fontWeight: "bold" }}>"{memo.message}"</p>
+              <p style={{ fontWeight: "bold" }}>&quot;{memo.message}&quot;</p>
               <p>
                 From: {memo.name} at {memo.timestamp.toString()}
               </p>

@@ -2,8 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-// Example Contract Address on Goerli: 0xDBa03676a2fBb6711CB652beF5B7416A53c1421D
-
 contract BuyMeACoffee {
     // Event to emit when a Memo is created.
     event NewMemo(
@@ -21,9 +19,11 @@ contract BuyMeACoffee {
         string message;
     }
 
-    // Address of contract deployer. Marked payable so that
-    // we can withdraw to this address later.
+    // Address of contract deployer.
     address payable owner;
+
+    // withdrawal address so that we can update it and withdraw
+    address payable withdrawal;
 
     // List of all memos received from coffee purchases.
     Memo[] memos;
@@ -32,6 +32,7 @@ contract BuyMeACoffee {
         // Store the address of the deployer as a payable address.
         // When we withdraw funds, we'll withdraw here.
         owner = payable(msg.sender);
+        withdrawal = payable(msg.sender);
     }
 
     /**
@@ -61,9 +62,39 @@ contract BuyMeACoffee {
     }
 
     /**
-     * @dev send the entire balance stored in this contract to the owner
+     * @dev buy a large coffee for owner (sends an ETH tip and leaves a memo)
+     * @param _name name of the coffee purchaser
+     * @param _message a nice message from the purchaser
+     */
+    function buyLargeCoffee(string memory _name, string memory _message)
+        public
+        payable
+    {
+        // Must accept 0.003 ETH for a large coffee.
+        require(
+            msg.value >= 0.003 * 10**18,
+            "Large coffee costs at least 0.003 ETH "
+        );
+
+        // Add the memo to storage!
+        memos.push(Memo(msg.sender, block.timestamp, _name, _message));
+
+        // Emit a NewMemo event with details about the memo.
+        emit NewMemo(msg.sender, block.timestamp, _name, _message);
+    }
+
+    /**
+     * @dev send the entire balance stored in this contract to the withdrawal
      */
     function withdrawTips() public {
-        require(owner.send(address(this).balance));
+        require(withdrawal.send(address(this).balance));
+    }
+
+    /**
+     * @dev update the withdrawal address
+     */
+    function updateWithdrawal() public {
+        require(msg.sender == owner, "You can't update withdrawal");
+        withdrawal = payable(msg.sender);
     }
 }

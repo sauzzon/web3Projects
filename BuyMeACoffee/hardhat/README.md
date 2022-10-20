@@ -1,3 +1,1 @@
-# Sample Hardhat Project
-
-BuyMeACoffee deployed to Goerli: 0x2854b11e86d74982e8921Db725c8501bDa049553
+BuyMeACoffee deployed to Goerli: 0x1d397f395DEAEd4cEB96D0c630A8cA548f35B8CF
