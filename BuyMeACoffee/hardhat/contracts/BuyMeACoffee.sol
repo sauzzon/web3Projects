@@ -93,8 +93,8 @@ contract BuyMeACoffee {
     /**
      * @dev update the withdrawal address
      */
-    function updateWithdrawal() public {
+    function updateWithdrawal(address _withdrawal) public {
         require(msg.sender == owner, "You can't update withdrawal");
-        withdrawal = payable(msg.sender);
+        withdrawal = payable(_withdrawal);
     }
 }
